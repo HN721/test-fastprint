@@ -1,6 +1,9 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const productRouter = require("./route/ProdukRoute");
+const statusRouter = require("./route/StatusRoute");
+const categoryRouter = require("./route/CategoryRoute");
+
 const cors = require("cors");
 const app = express();
 const port = 3000;
@@ -23,6 +26,9 @@ mongoose
     console.error("Error connecting to MongoDB:", error);
   });
 app.use("/produk", productRouter);
+app.use("/category", categoryRouter);
+app.use("/status", statusRouter);
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

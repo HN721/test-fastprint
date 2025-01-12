@@ -61,12 +61,17 @@ const ProductCtrl = {
   updateProduct: async (req, res) => {
     try {
       const { nama_produk, harga, kategori_id, status_id } = req.body;
-      const product = await Product.findById(req.params.id);
-      product.nama_produk = nama_produk;
-      product.harga = harga;
-      product.kategori_id = kategori_id;
-      product.status_id = status_id;
-      await product.save();
+      const { id } = req.params;
+      const product = await Product.findByIdAndUpdate(
+        id,
+        {
+          nama_produk: nama_produk,
+          harga: harga,
+          kategori_id: kategori_id,
+          status_id: status_id,
+        },
+        { new: true }
+      );
       res.status(200).json({
         message: "Data berhasil diupdate",
         data: product,

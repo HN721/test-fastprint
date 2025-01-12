@@ -1,16 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { ProductApi } from "../services/ProductApi";
+import { FaEdit, FaTrash } from "react-icons/fa";
+import { DeleteProductApi, ProductApi } from "../services/ProductApi";
+import { useNavigate } from "react-router-dom";
 
 export default function Product() {
   const [products, setProducts] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1); // Halaman saat ini
-  const [productsPerPage] = useState(15); // Jumlah produk per halaman
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const [productsPerPage] = useState(15);
+  const [showModal, setShowModal] = useState(false); // State untuk menampilkan modal
+  const [productToDelete, setProductToDelete] = useState(null); // Menyimpan ID produk yang akan dihapus
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await ProductApi(); // Fetch data dari API
-        setProducts(data.data); // Simpan data ke state
+        const data = await ProductApi();
+        const filteredProducts = data.data.filter(
+          (product) => product.status_id.nama_status === "bisa dijual"
+        );
+        setProducts(filteredProducts);
       } catch (err) {
         console.error("Error fetching products:", err);
       }
@@ -18,10 +25,31 @@ export default function Product() {
     fetchData();
   }, []);
 
-  // Hitung total halaman berdasarkan jumlah produk
+  const handleDelete = async () => {
+    if (productToDelete) {
+      try {
+        await DeleteProductApi(productToDelete);
+        setProducts(
+          products.filter((product) => product._id !== productToDelete)
+        );
+        window.location.reload();
+        setShowModal(false); // Close modal setelah berhasil delete
+      } catch (err) {
+        console.error("Error handling delete:", err);
+      }
+    }
+  };
+  function handleEdit(id) {
+    navigate(`/product/edit/${id}`);
+  }
+
+  const handleCancel = () => {
+    setShowModal(false); // Close modal jika cancel
+    setProductToDelete(null); // Reset ID produk yang akan dihapus
+  };
+
   const totalPages = Math.ceil(products.length / productsPerPage);
 
-  // Mengambil produk untuk halaman tertentu
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
   const currentProducts = products.slice(
@@ -29,12 +57,19 @@ export default function Product() {
     indexOfLastProduct
   );
 
-  // Fungsi untuk mengubah halaman
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
+  function handleCreate() {
+    navigate("/product/create");
+  }
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Product List</h1>
+      <button
+        onClick={handleCreate}
+        className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded mb-2"
+      >
+        Tambah Data
+      </button>
 
       <table className="min-w-full bg-white border border-gray-200">
         <thead>
@@ -44,6 +79,7 @@ export default function Product() {
             <th className="p-3 border-b border-gray-300">Price</th>
             <th className="p-3 border-b border-gray-300">Category</th>
             <th className="p-3 border-b border-gray-300">Status</th>
+            <th className="p-3 border-b border-gray-300">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -55,12 +91,27 @@ export default function Product() {
               </td>
               <td className="p-3 border-b border-gray-300">{product.harga}</td>
               <td className="p-3 border-b border-gray-300">
-                {product.kategori_id.nama_kategori}{" "}
-                {/* Assuming kategori is an object */}
+                {product.kategori_id.nama_kategori}
               </td>
               <td className="p-3 border-b border-gray-300">
-                {product.status_id.nama_status}{" "}
-                {/* Assuming status is an object */}
+                {product.status_id.nama_status}
+              </td>
+              <td className="p-3 border-b border-gray-300">
+                <button
+                  onClick={() => handleEdit(product._id)}
+                  className="text-blue-500 hover:text-blue-600"
+                >
+                  <FaEdit className="text-xl" />
+                </button>
+                <button
+                  onClick={() => {
+                    setShowModal(true);
+                    setProductToDelete(product._id);
+                  }}
+                  className="text-red-500 hover:text-red-600 ml-2"
+                >
+                  <FaTrash className="text-xl" />
+                </button>
               </td>
             </tr>
           ))}
@@ -97,6 +148,31 @@ export default function Product() {
           Next
         </button>
       </div>
+
+      {/* Modal Konfirmasi Delete */}
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+            <h2 className="text-lg font-bold mb-4">
+              Are you sure you want to delete this product?
+            </h2>
+            <div className="flex justify-end">
+              <button
+                onClick={handleCancel}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md mr-2"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 bg-red-500 text-white rounded-md"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
