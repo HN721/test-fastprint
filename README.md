@@ -64,24 +64,32 @@ Halaman Utama Produk
 Produk yang ditampilkan hanya yang memiliki status "bisa dijual".
 Gunakan tombol Prev dan Next untuk navigasi antar halaman.
 Klik tombol Tambah Data untuk menambah produk baru.
+
 Edit Produk
 Klik ikon pensil (✏️) di kolom Action untuk membuka halaman edit.
 Formulir akan menampilkan data produk yang sudah ada.
 Simpan perubahan dengan klik tombol Save Changes.
+
 Hapus Produk
 Klik ikon sampah (🗑️) untuk membuka modal konfirmasi.
 Pilih Confirm untuk menghapus produk atau Cancel untuk membatalkan.
+
 Validasi Input
 Tambah dan Edit Produk:
 Nama Produk: Tidak boleh kosong.
 Harga: Harus berupa angka lebih dari 0.
 Kategori: Harus memilih salah satu kategori.
 Status: Harus memilih salah satu status.
+
 Kontribusi
 Fork repositori ini.
+
 Buat branch baru: git checkout -b fitur-baru.
 Lakukan perubahan dan commit: git commit -m 'Tambah fitur baru'.
+
 Push ke branch Anda: git push origin fitur-baru.
+
 Ajukan Pull Request.
 Lisensi
+
 Proyek ini dilisensikan di bawah MIT License.
