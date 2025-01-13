@@ -38,7 +38,7 @@ Instalasi
 1. Clone Repositori
    bash
    Salin kode
-   git clone https://github.com/username/product-management.git
+   git clone https://github.com/HN721/test-fastprint.git
    cd product-management
 2. Install Dependency
    bash
@@ -50,19 +50,6 @@ Instalasi
    npm start
    Pastikan backend API juga berjalan untuk mendapatkan data produk, kategori, dan status.
 
-Struktur File
-graphql
-Salin kode
-src/
-├── components/
-│ ├── Product.js # Halaman utama produk
-│ ├── Edit.js # Form untuk edit produk
-│ └── Create.js # Form untuk menambahkan produk baru
-├── services/
-│ ├── ProductApi.js # API untuk data produk
-│ ├── Category.js # API untuk data kategori
-│ └── Status.js # API untuk data status
-└── App.js # Titik masuk aplikasi
 Cara Penggunaan
 Halaman Utama Produk
 Produk yang ditampilkan hanya yang memiliki status "bisa dijual".
