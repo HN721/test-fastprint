@@ -65,10 +65,10 @@ const ProductCtrl = {
       const product = await Product.findByIdAndUpdate(
         id,
         {
-          nama_produk: nama_produk,
-          harga: harga,
-          kategori_id: kategori_id,
-          status_id: status_id,
+          nama_produk,
+          harga,
+          kategori_id,
+          status_id,
         },
         { new: true }
       );

@@ -1,70 +1,86 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { FindOneProductApi } from "../services/ProductApi"; // Pastikan API update sudah ada
+import { FindOneProductApi } from "../services/ProductApi";
+import { getCategoryApi } from "../services/Category";
+import { getSatatusAPI } from "../services/Status";
 import axios from "axios";
 
 export default function Edit() {
   const { id } = useParams();
-  const navigate = useNavigate(); // Untuk navigasi setelah submit
+  const navigate = useNavigate();
 
-  // State untuk form input (menggunakan satu objek state)
-  const [product, setProduct] = useState({
-    nama: "",
-    harga: "",
-    category: "",
-    status: "",
-  });
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
 
-  // Mengambil data produk berdasarkan ID dari URL
+  const [statuses, setStatuses] = useState([]);
+  const [nama, setNama] = useState("");
+  const [harga, setHarga] = useState("");
+
+  const [errors, setErrors] = useState({});
+
+  // Fetch categories and statuses
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchCategoriesAndStatuses = async () => {
+      try {
+        const categoryRes = await getCategoryApi();
+        const statusRes = await getSatatusAPI();
+        setCategories(categoryRes.data);
+        setStatuses(statusRes.data);
+      } catch (err) {
+        console.error("Error fetching categories or statuses:", err);
+      }
+    };
+
+    fetchCategoriesAndStatuses();
+  }, []);
+
+  // Fetch product data
+  useEffect(() => {
+    const fetchProduct = async () => {
       try {
         const res = await FindOneProductApi(id);
-        setProduct({
-          nama: res.data.nama_produk,
-          harga: res.data.harga,
-          status: res.data.status_id.nama_status,
-          category: res.data.kategori_id.nama_kategori,
-        });
+        setNama(res.data.nama_produk);
+        setHarga(res.data.harga);
+        setSelectedCategory(res.data.kategori_id);
+        setSelectedStatus(res.data.status_id);
       } catch (err) {
         console.error("Error fetching product:", err);
       }
     };
 
-    fetchData();
-  }, []);
+    fetchProduct();
+  }, [id]);
 
-  // Menangani submit form untuk update produk
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log(
-      id,
-      product.nama,
-      product.harga,
-      product.category,
-      product.status
-    );
-    try {
-      // Mengirim data yang sudah diubah ke API
-      const res = await axios.put(`http://localhost:3000/produk/update/${id}`, {
-        nama_produk: product.nama,
-        harga: product.harga,
-      });
+  // Validasi input
+  const validate = () => {
+    const validationErrors = {};
+    if (!nama.trim()) validationErrors.nama = "Nama produk tidak boleh kosong.";
+    if (!harga) validationErrors.harga = "Harga produk tidak boleh kosong.";
+    if (!selectedCategory)
+      validationErrors.category = "Kategori harus dipilih.";
+    if (!selectedStatus) validationErrors.status = "Status harus dipilih.";
 
-      console.log(res); // Kirim data produk yang sudah diperbarui
-      navigate("/product"); // Redirect ke halaman produk setelah berhasil update
-    } catch (err) {
-      console.log("Error updating product:", err);
-    }
+    setErrors(validationErrors);
+    return Object.keys(validationErrors).length === 0;
   };
 
-  // Mengubah state produk secara dinamis
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setProduct((prevProduct) => ({
-      ...prevProduct,
-      [name]: value,
-    }));
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    try {
+      await axios.put(`http://localhost:3000/produk/update/${id}`, {
+        nama_produk: nama,
+        harga: harga,
+        kategori_id: selectedCategory,
+        status_id: selectedStatus,
+      });
+      navigate("/product");
+    } catch (err) {
+      console.error("Error updating product:", err);
+    }
   };
 
   return (
@@ -78,10 +94,13 @@ export default function Edit() {
           <input
             type="text"
             name="nama"
-            value={product.nama}
-            onChange={handleInputChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+            value={nama}
+            onChange={(e) => setNama(e.target.value)}
+            className={`mt-1 block w-full border ${
+              errors.nama ? "border-red-500" : "border-gray-300"
+            } rounded-md p-2`}
           />
+          {errors.nama && <p className="text-red-500 text-sm">{errors.nama}</p>}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">
@@ -90,36 +109,60 @@ export default function Edit() {
           <input
             type="number"
             name="harga"
-            value={product.harga}
-            onChange={handleInputChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+            value={harga}
+            onChange={(e) => setHarga(e.target.value)}
+            className={`mt-1 block w-full border ${
+              errors.harga ? "border-red-500" : "border-gray-300"
+            } rounded-md p-2`}
           />
+          {errors.harga && (
+            <p className="text-red-500 text-sm">{errors.harga}</p>
+          )}
         </div>
         <div>
           <label className="text-sm font-medium text-gray-700">Category</label>
-          <input
-            type="text"
+          <select
             name="category"
-            value={product.category}
-            onChange={handleInputChange}
-            className="mt-1 w-full border border-gray-300 rounded-md p-2"
-            disabled
-          />
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className={`mt-1 block w-full border ${
+              errors.category ? "border-red-500" : "border-gray-300"
+            } rounded-md p-2`}
+          >
+            <option value="">Select a Category</option>
+            {categories.map((category) => (
+              <option key={category._id} value={category._id}>
+                {category.nama_kategori}
+              </option>
+            ))}
+          </select>
+          {errors.category && (
+            <p className="text-red-500 text-sm">{errors.category}</p>
+          )}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Status
           </label>
-          <input
+          <select
             name="status"
-            type="text"
-            value={product.status}
-            onChange={handleInputChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-            disabled
-          ></input>
+            value={selectedStatus}
+            onChange={(e) => setSelectedStatus(e.target.value)}
+            className={`mt-1 block w-full border ${
+              errors.status ? "border-red-500" : "border-gray-300"
+            } rounded-md p-2`}
+          >
+            <option value="">Select a Status</option>
+            {statuses.map((status) => (
+              <option key={status._id} value={status._id}>
+                {status.nama_status}
+              </option>
+            ))}
+          </select>
+          {errors.status && (
+            <p className="text-red-500 text-sm">{errors.status}</p>
+          )}
         </div>
-
         <div className="flex justify-end gap-4">
           <button
             type="button"

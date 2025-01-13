@@ -14,15 +14,13 @@ export default function Sidebar() {
       {/* Header */}
       <div className="p-6 border-b border-slate-700">
         <h1 className="text-2xl font-bold text-white">FAST PRINT</h1>
-        <p className="text-sm text-slate-400">Your admin panel</p>
+        <p className="text-sm text-slate-400">Admin panel</p>
       </div>
 
       {/* Navigation Menu */}
       <div className="flex-1 p-4 space-y-4">
         <NavItem icon={<FaHome />} label="Dashboard" to="/" />
         <NavItem icon={<FaBoxOpen />} label="Products" to="/product" />
-        <NavItem icon={<FaClipboardList />} label="Orders" to="/orders" />
-        <NavItem icon={<FaCogs />} label="Settings" to="/settings" />
       </div>
 
       {/* Footer/Logout */}

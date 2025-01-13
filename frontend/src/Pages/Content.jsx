@@ -19,28 +19,6 @@ export default function Content() {
       </div>
 
       {/* Recent Activity Section */}
-      <div className="mt-8">
-        <h2 className="text-xl font-semibold text-slate-800 mb-4">
-          Recent Activities
-        </h2>
-        <ul className="space-y-4">
-          <ActivityItem
-            title="Order #1234 completed"
-            description="Customer: John Doe"
-            time="2 hours ago"
-          />
-          <ActivityItem
-            title="New product added"
-            description="Product: Fast Printer 3000"
-            time="5 hours ago"
-          />
-          <ActivityItem
-            title="Issue reported"
-            description="Customer: Jane Smith"
-            time="8 hours ago"
-          />
-        </ul>
-      </div>
     </div>
   );
 }
