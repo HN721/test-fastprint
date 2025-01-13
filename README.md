@@ -1,183 +1,91 @@
 TEST FAST PRINT
+![alt text](image-7.png)
+Sistem Manajemen Produk dengan Pagination dan CRUD
+Proyek ini adalah aplikasi web untuk mengelola daftar produk dengan fitur CRUD (Create, Read, Update, Delete) dan sistem pagination. Setiap halaman menampilkan maksimal 15 produk, dan data produk difilter hanya untuk status yang bisa dijual.
 
-1. Halaman Awal Produk Menggunakan Pagination Per 15 Data Produk
-   ![alt text](image-7.png)
-   import React, { useEffect, useState } from "react";
-   import { FaEdit, FaTrash } from "react-icons/fa";
-   import { DeleteProductApi, ProductApi } from "../services/ProductApi";
-   import { useNavigate } from "react-router-dom";
+Fitur
+Halaman Utama dengan Pagination:
 
-export default function Product() {
-const [products, setProducts] = useState([]);
-const [currentPage, setCurrentPage] = useState(1);
-const [productsPerPage] = useState(15);
-const [showModal, setShowModal] = useState(false); // State untuk menampilkan modal
-const [productToDelete, setProductToDelete] = useState(null); // Menyimpan ID produk yang akan dihapus
-const navigate = useNavigate();
-useEffect(() => {
-const fetchData = async () => {
-try {
-const data = await ProductApi();
-const filteredProducts = data.data.filter(
-(product) => product.status_id.nama_status === "bisa dijual"
-);
-setProducts(filteredProducts);
-} catch (err) {
-console.error("Error fetching products:", err);
-}
-};
-fetchData();
-}, []);
+Menampilkan 15 produk per halaman.
+Navigasi mudah antar halaman.
+Tampilkan data produk yang dapat dijual.
 
-const handleDelete = async () => {
-if (productToDelete) {
-try {
-await DeleteProductApi(productToDelete);
-setProducts(
-products.filter((product) => product.\_id !== productToDelete)
-);
-window.location.reload();
-setShowModal(false); // Close modal setelah berhasil delete
-} catch (err) {
-console.error("Error handling delete:", err);
-}
-}
-};
-function handleEdit(id) {
-navigate(`/product/edit/${id}`);
-}
+CRUD Produk:
 
-const handleCancel = () => {
-setShowModal(false); // Close modal jika cancel
-setProductToDelete(null); // Reset ID produk yang akan dihapus
-};
+Tambah Produk: Formulir untuk menambahkan produk baru.
+Edit Produk: Formulir untuk mengedit produk yang ada.
+Hapus Produk: Menghapus produk dengan konfirmasi menggunakan modal.
+Modal Konfirmasi:
 
-const totalPages = Math.ceil(products.length / productsPerPage);
+Memastikan pengguna yakin sebelum menghapus produk.
+Desain Responsif:
 
-const indexOfLastProduct = currentPage \* productsPerPage;
-const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-const currentProducts = products.slice(
-indexOfFirstProduct,
-indexOfLastProduct
-);
+Tampilan optimal untuk berbagai ukuran perangkat.
+Teknologi yang Digunakan
+Frontend:
 
-const paginate = (pageNumber) => setCurrentPage(pageNumber);
-function handleCreate() {
-navigate("/product/create");
-}
-return (
-<div className="p-6">
-<h1 className="text-2xl font-bold mb-4">Product List</h1>
-<button
-        onClick={handleCreate}
-        className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded mb-2"
-      >
-Tambah Data
-</button>
+React.js
+TailwindCSS
+React Icons
+React Router DOM
+Axios
+Backend:
 
-      <table className="min-w-full bg-white border border-gray-200">
-        <thead>
-          <tr className="bg-gray-200 text-left">
-            <th className="p-3 border-b border-gray-300">#</th>
-            <th className="p-3 border-b border-gray-300">Name</th>
-            <th className="p-3 border-b border-gray-300">Price</th>
-            <th className="p-3 border-b border-gray-300">Category</th>
-            <th className="p-3 border-b border-gray-300">Status</th>
-            <th className="p-3 border-b border-gray-300">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentProducts.map((product, index) => (
-            <tr key={product._id}>
-              <td className="p-3 border-b border-gray-300">{index + 1}</td>
-              <td className="p-3 border-b border-gray-300">
-                {product.nama_produk}
-              </td>
-              <td className="p-3 border-b border-gray-300">{product.harga}</td>
-              <td className="p-3 border-b border-gray-300">
-                {product.kategori_id.nama_kategori}
-              </td>
-              <td className="p-3 border-b border-gray-300">
-                {product.status_id.nama_status}
-              </td>
-              <td className="p-3 border-b border-gray-300">
-                <button
-                  onClick={() => handleEdit(product._id)}
-                  className="text-blue-500 hover:text-blue-600"
-                >
-                  <FaEdit className="text-xl" />
-                </button>
-                <button
-                  onClick={() => {
-                    setShowModal(true);
-                    setProductToDelete(product._id);
-                  }}
-                  className="text-red-500 hover:text-red-600 ml-2"
-                >
-                  <FaTrash className="text-xl" />
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+Node.js
+Express.js (API untuk produk, kategori, dan status)
+Instalasi
 
-      {/* Pagination */}
-      <div className="flex justify-center gap-3 mt-4">
-        <button
-          onClick={() => paginate(currentPage - 1)}
-          disabled={currentPage === 1}
-          className="px-4 py-2 bg-blue-500 text-white rounded-l-md"
-        >
-          Prev
-        </button>
-        {[...Array(totalPages)].map((_, index) => (
-          <button
-            key={index}
-            onClick={() => paginate(index + 1)}
-            className={`px-4 py-2 ${
-              currentPage === index + 1
-                ? "bg-blue-500 text-white"
-                : "bg-gray-200"
-            } rounded-md`}
-          >
-            {index + 1}
-          </button>
-        ))}
-        <button
-          onClick={() => paginate(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className="px-4 py-2 bg-blue-500 text-white rounded-r-md"
-        >
-          Next
-        </button>
-      </div>
+1. Clone Repositori
+   bash
+   Salin kode
+   git clone https://github.com/username/product-management.git
+   cd product-management
+2. Install Dependency
+   bash
+   Salin kode
+   npm install
+3. Jalankan Aplikasi
+   bash
+   Salin kode
+   npm start
+   Pastikan backend API juga berjalan untuk mendapatkan data produk, kategori, dan status.
 
-      {/* Modal Konfirmasi Delete */}
-      {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-            <h2 className="text-lg font-bold mb-4">
-              Are you sure you want to delete this product?
-            </h2>
-            <div className="flex justify-end">
-              <button
-                onClick={handleCancel}
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md mr-2"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDelete}
-                className="px-4 py-2 bg-red-500 text-white rounded-md"
-              >
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-
-);
-}
+Struktur File
+graphql
+Salin kode
+src/
+├── components/
+│ ├── Product.js # Halaman utama produk
+│ ├── Edit.js # Form untuk edit produk
+│ └── Create.js # Form untuk menambahkan produk baru
+├── services/
+│ ├── ProductApi.js # API untuk data produk
+│ ├── Category.js # API untuk data kategori
+│ └── Status.js # API untuk data status
+└── App.js # Titik masuk aplikasi
+Cara Penggunaan
+Halaman Utama Produk
+Produk yang ditampilkan hanya yang memiliki status "bisa dijual".
+Gunakan tombol Prev dan Next untuk navigasi antar halaman.
+Klik tombol Tambah Data untuk menambah produk baru.
+Edit Produk
+Klik ikon pensil (✏️) di kolom Action untuk membuka halaman edit.
+Formulir akan menampilkan data produk yang sudah ada.
+Simpan perubahan dengan klik tombol Save Changes.
+Hapus Produk
+Klik ikon sampah (🗑️) untuk membuka modal konfirmasi.
+Pilih Confirm untuk menghapus produk atau Cancel untuk membatalkan.
+Validasi Input
+Tambah dan Edit Produk:
+Nama Produk: Tidak boleh kosong.
+Harga: Harus berupa angka lebih dari 0.
+Kategori: Harus memilih salah satu kategori.
+Status: Harus memilih salah satu status.
+Kontribusi
+Fork repositori ini.
+Buat branch baru: git checkout -b fitur-baru.
+Lakukan perubahan dan commit: git commit -m 'Tambah fitur baru'.
+Push ke branch Anda: git push origin fitur-baru.
+Ajukan Pull Request.
+Lisensi
+Proyek ini dilisensikan di bawah MIT License.
