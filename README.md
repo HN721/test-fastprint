@@ -1,8 +1,17 @@
 TEST FAST PRINT
-![alt text](image-7.png)
-Sistem Manajemen Produk dengan Pagination dan CRUD
+Sistem Manajemen Produk CRUD
 Proyek ini adalah aplikasi web untuk mengelola daftar produk dengan fitur CRUD (Create, Read, Update, Delete) dan sistem pagination. Setiap halaman menampilkan maksimal 15 produk, dan data produk difilter hanya untuk status yang bisa dijual.
+Home Page
+![alt text](image-7.png)
 
+Edit Page
+![alt text](image-8.png)
+
+Validation
+![alt text](image-9.png)
+
+Alert Confirm
+![alt text](image-10.png)
 Fitur
 Halaman Utama dengan Pagination:
 
